@@ -12,8 +12,6 @@ Goals:
 ```text
 src/app/
   (home)/                 # Route group entries
-  examples/               # Route entries for examples
-  api/                    # Route handlers
   layout.tsx              # Root layout entry
   error.tsx               # Error boundary entry
   not-found.tsx           # Not-found entry

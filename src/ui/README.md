@@ -21,15 +21,6 @@ src/ui/
   svgs/                     # SVG components
 ```
 
-## Mapping Rule
-
-Keep directory names aligned between route entries and page implementations.
-
-```text
-src/app/examples/server-time/page.tsx
-src/ui/app/examples/server-time/index.tsx
-```
-
 ## Checklist For PRs
 
 - New route UI has `src/ui/app/**/index.tsx`.

@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import '@/styles/index.css'
-import { clientEnv } from '@/configs/client-env'
 import { fontsClassName } from '@/styles/fonts'
 import { Header } from '@/ui/app/layout/header'
 import { Providers } from '@/ui/components/providers'
 
 export const metadata: Metadata = {
-  title: clientEnv.appName,
+  title: 'Suki Kana',
 }
 
 export default function Layout({ children }: { children: ReactNode }) {

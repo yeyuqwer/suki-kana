@@ -48,40 +48,6 @@ import { serverEnv } from '@/configs/server-env'
 2. Add the typed value to `clientEnv` or `serverEnv`.
 3. Consume values through `@/configs/client-env` or `@/configs/server-env`.
 
-Shared public example:
-
-```ts
-// src/configs/validator/validate-public-env.ts
-const publicEnvSchema = z.object({
-  NEXT_PUBLIC_FEATURE_FLAG: z.enum(['on', 'off']),
-})
-```
-
-```ts
-// src/configs/client-env.ts
-export const clientEnv = {
-  featureFlag: process.env.NEXT_PUBLIC_FEATURE_FLAG as 'on' | 'off',
-}
-```
-
-Server-only example:
-
-```ts
-// src/configs/validator/validate-server-env.ts
-const serverEnvSchema = z.object({
-  API_SECRET: z.string().trim().min(1, 'API_SECRET is required'),
-})
-```
-
-```ts
-// src/configs/server-env.ts
-import 'server-only'
-
-export const serverEnv = {
-  apiSecret: process.env.API_SECRET as string,
-}
-```
-
 ## Checklist For PRs
 
 - Zod validation stays in `src/configs/validator/validate-*.ts`.

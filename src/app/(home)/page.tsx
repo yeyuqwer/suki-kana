@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
-import { clientEnv } from '@/configs/client-env'
 import { HomePage } from '@/ui/app/(home)'
 
 export const metadata: Metadata = {
-  title: clientEnv.appName,
-  description: `${clientEnv.appName} home page.`,
+  title: 'Suki Kana',
+  description: 'Suki Kana home page.',
 }
 
 export default function Page() {
