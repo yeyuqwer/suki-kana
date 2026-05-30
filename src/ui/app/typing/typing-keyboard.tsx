@@ -2,23 +2,31 @@ import type { FC } from 'react'
 import { cn } from '@/lib/utils/shadcn'
 import { keyboardRows } from './typing-data'
 
-export const TypingKeyboard: FC<{ activeKey: string }> = ({ activeKey }) => {
+export const TypingKeyboard: FC<{
+  activeKey: string
+  currentRomaji: string
+  isAnswerShown: boolean
+}> = ({ activeKey, currentRomaji, isAnswerShown }) => {
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-2">
       {keyboardRows.map(row => (
         <div key={row.join('')} className="flex justify-center gap-1 sm:gap-2">
-          {row.map(key => (
-            <kbd
-              key={key}
-              className={cn(
-                'flex h-10 min-w-7 items-center justify-center rounded-md border bg-card px-2 font-semibold text-sm uppercase shadow-xs transition-colors sm:h-14 sm:min-w-12 sm:px-3',
-                activeKey === key &&
-                  'border-emerald-500 bg-emerald-500 text-white shadow-emerald-500/25',
-              )}
-            >
-              {key}
-            </kbd>
-          ))}
+          {row.map(key => {
+            const isAnswerKey = isAnswerShown && currentRomaji.includes(key)
+
+            return (
+              <kbd
+                key={key}
+                className={cn(
+                  'flex h-10 min-w-7 items-center justify-center rounded-md border bg-card px-2 font-semibold text-sm uppercase shadow-xs transition-colors sm:h-14 sm:min-w-12 sm:px-3',
+                  (activeKey === key || isAnswerKey) &&
+                    'border-emerald-500 bg-emerald-500 text-white shadow-emerald-500/25',
+                )}
+              >
+                {key}
+              </kbd>
+            )
+          })}
         </div>
       ))}
 

@@ -26,7 +26,11 @@ export const TypingPage: FC = () => {
         onNextKana={handleNextKana}
         onReset={handleReset}
       />
-      <TypingKeyboard activeKey={activeKey} />
+      <TypingKeyboard
+        activeKey={activeKey}
+        currentRomaji={currentRomaji}
+        isAnswerShown={isAnswerShown}
+      />
     </main>
   )
 }
