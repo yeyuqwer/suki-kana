@@ -11,6 +11,7 @@ export function useTypingPractice() {
 
   const currentKana = kanaList[kanaIndex]
   const currentRomaji = useMemo(() => toRomaji(currentKana), [currentKana])
+  const isInputWrong = typedValue.length >= currentRomaji.length && typedValue !== currentRomaji
 
   const resetAnswerState = useCallback(() => {
     setTypedValue('')
@@ -53,7 +54,7 @@ export function useTypingPractice() {
       }
 
       if (/^[a-z]$/.test(key)) {
-        const nextTypedValue = `${typedValue}${key}`
+        const nextTypedValue = isInputWrong ? key : `${typedValue}${key}`
 
         setActiveKey(key)
         setTypedValue(nextTypedValue)
@@ -82,7 +83,7 @@ export function useTypingPractice() {
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [currentRomaji, resetAnswerState, spacePressCount, typedValue])
+  }, [currentRomaji, isInputWrong, resetAnswerState, spacePressCount, typedValue])
 
   return {
     activeKey,
@@ -91,6 +92,7 @@ export function useTypingPractice() {
     handleNextKana,
     handleReset,
     isAnswerShown,
+    isInputWrong,
     typedValue,
   }
 }

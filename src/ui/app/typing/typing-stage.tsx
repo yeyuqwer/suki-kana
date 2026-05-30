@@ -8,9 +8,18 @@ export const TypingStage: FC<{
   currentRomaji: string
   typedValue: string
   isAnswerShown: boolean
+  isInputWrong: boolean
   onNextKana: () => void
   onReset: () => void
-}> = ({ currentKana, currentRomaji, typedValue, isAnswerShown, onNextKana, onReset }) => {
+}> = ({
+  currentKana,
+  currentRomaji,
+  typedValue,
+  isAnswerShown,
+  isInputWrong,
+  onNextKana,
+  onReset,
+}) => {
   return (
     <section className="flex min-h-[52svh] flex-col items-center justify-center gap-7 text-center">
       <div className="flex flex-col items-center gap-3">
@@ -24,7 +33,7 @@ export const TypingStage: FC<{
         </p>
         <h1
           className={cn(
-            'font-semibold text-8xl text-[#202321] leading-none tracking-normal drop-shadow-[0_10px_26px_rgba(32,35,33,0.12)] transition-colors sm:text-9xl dark:text-[#eee7da] dark:drop-shadow-[0_12px_30px_rgba(0,0,0,0.45)]',
+            'typing-kana-font text-8xl text-[#202321] leading-none tracking-normal drop-shadow-[0_10px_26px_rgba(32,35,33,0.12)] transition-colors sm:text-9xl dark:text-[#eee7da] dark:drop-shadow-[0_12px_30px_rgba(0,0,0,0.45)]',
             isAnswerShown && 'text-[#bd3f33] dark:text-[#f07862]',
           )}
         >
@@ -33,7 +42,13 @@ export const TypingStage: FC<{
       </div>
 
       <div className="flex w-full max-w-md flex-col items-center gap-3">
-        <div className="h-14 w-full border-[#315463] border-b-2 px-3 text-center font-medium text-5xl text-[#315463] tracking-normal transition-colors dark:border-[#86a8a1] dark:text-[#ded3c1]">
+        <div
+          className={cn(
+            'h-14 w-full border-[#315463] border-b-2 px-3 text-center font-medium text-5xl text-[#315463] tracking-normal transition-colors dark:border-[#86a8a1] dark:text-[#ded3c1]',
+            isInputWrong &&
+              'typing-input-shake border-[#bd3f33] text-[#bd3f33] dark:border-[#f07862] dark:text-[#f07862]',
+          )}
+        >
           {typedValue}
         </div>
         <div className="flex gap-2">
@@ -60,6 +75,14 @@ export const TypingStage: FC<{
             <Shuffle />
           </Button>
         </div>
+        <p
+          className={cn(
+            'min-h-7 text-center font-semibold text-transparent text-xl transition-colors',
+            isInputWrong && 'text-[#bd3f33] dark:text-[#f07862]',
+          )}
+        >
+          直接重新输入答案即可
+        </p>
       </div>
     </section>
   )

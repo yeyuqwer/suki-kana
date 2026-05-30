@@ -1,0 +1,29 @@
+.typing-kana-font {
+  font-family:
+    "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", YuMincho, "Noto Serif CJK JP",
+    "Noto Serif JP", "Source Han Serif JP", serif;
+  font-weight: 700;
+}
+
+.typing-input-shake {
+  animation: typing-input-shake 180ms ease-in-out;
+}
+
+@keyframes typing-input-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-8px);
+  }
+
+  50% {
+    transform: translateX(7px);
+  }
+
+  75% {
+    transform: translateX(-4px);
+  }
+}

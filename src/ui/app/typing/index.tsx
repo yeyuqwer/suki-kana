@@ -13,6 +13,7 @@ export const TypingPage: FC = () => {
     handleNextKana,
     handleReset,
     isAnswerShown,
+    isInputWrong,
     typedValue,
   } = useTypingPractice()
 
@@ -24,6 +25,7 @@ export const TypingPage: FC = () => {
           currentRomaji={currentRomaji}
           typedValue={typedValue}
           isAnswerShown={isAnswerShown}
+          isInputWrong={isInputWrong}
           onNextKana={handleNextKana}
           onReset={handleReset}
         />
