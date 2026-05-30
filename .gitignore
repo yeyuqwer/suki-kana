@@ -31,3 +31,5 @@ pnpm-debug.log*
 
 # for AI
 refer
+
+.pnpm-store

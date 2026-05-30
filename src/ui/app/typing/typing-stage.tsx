@@ -15,6 +15,7 @@ export const TypingStage: FC<{
   onPreviousKana: () => void
   onSelectSpeechVoice: (voiceURI: string) => void
   onSpeakKana: () => void
+  selectedVoiceName: string
   selectedVoiceURI: string
 }> = ({
   currentKana,
@@ -27,12 +28,13 @@ export const TypingStage: FC<{
   onPreviousKana,
   onSelectSpeechVoice,
   onSpeakKana,
+  selectedVoiceName,
   selectedVoiceURI,
 }) => {
   const [isVoiceListOpen, setIsVoiceListOpen] = useState(false)
-  const selectedVoiceName =
+  const displayedVoiceName =
     japaneseSpeechVoices.find(voice => voice.voiceURI === selectedVoiceURI)?.name ??
-    '未找到日语语音'
+    (selectedVoiceName || '未找到日语语音')
   const getVoiceGenderLabel = (voiceName: string) => {
     const normalizedVoiceName = voiceName.toLowerCase()
 
@@ -130,13 +132,25 @@ export const TypingStage: FC<{
           >
             <Volume2 />
           </Button>
-          <div className="relative min-w-0 flex-1">
+          <div
+            className="relative min-w-0 flex-1"
+            onBlur={event => {
+              const nextFocusedElement = event.relatedTarget
+
+              if (
+                !(nextFocusedElement instanceof Node) ||
+                !event.currentTarget.contains(nextFocusedElement)
+              ) {
+                setIsVoiceListOpen(false)
+              }
+            }}
+          >
             <button
               type="button"
               className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-[#d6c7b3] bg-[#fbf8f1] px-3 text-left text-[#315463] text-sm shadow-sm outline-none transition-colors hover:bg-[#ece3d3] dark:border-[#2f4146] dark:bg-[#161d20] dark:text-[#ded3c1] dark:hover:bg-[#202b2f]"
               onClick={() => setIsVoiceListOpen(isOpen => !isOpen)}
             >
-              <span className="truncate">{selectedVoiceName}</span>
+              <span className="truncate">{displayedVoiceName}</span>
               <ChevronDown
                 className={cn(
                   'size-4 shrink-0 transition-transform',
@@ -163,7 +177,6 @@ export const TypingStage: FC<{
                     )}
                     onClick={() => {
                       onSelectSpeechVoice(voice.voiceURI)
-                      setIsVoiceListOpen(false)
                     }}
                   >
                     <span className="whitespace-nowrap">{voice.name}</span>

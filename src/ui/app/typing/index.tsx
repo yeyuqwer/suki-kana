@@ -17,6 +17,7 @@ export const TypingPage: FC = () => {
     isAnswerShown,
     isInputWrong,
     japaneseSpeechVoices,
+    selectedVoiceName,
     selectedVoiceURI,
     typedValue,
   } = useTypingPractice()
@@ -35,6 +36,7 @@ export const TypingPage: FC = () => {
           onPreviousKana={handlePreviousKana}
           onSelectSpeechVoice={handleSelectSpeechVoice}
           onSpeakKana={handleSpeakKana}
+          selectedVoiceName={selectedVoiceName}
           selectedVoiceURI={selectedVoiceURI}
         />
         <TypingKeyboard

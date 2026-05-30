@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toRomaji } from 'wanakana'
 import { kanaList } from './typing-data'
+import { useTypingStore } from './typing-store'
 
 export function useTypingPractice() {
   const [kanaIndex, setKanaIndex] = useState(0)
@@ -9,7 +10,13 @@ export function useTypingPractice() {
   const [spacePressCount, setSpacePressCount] = useState(0)
   const [isAnswerShown, setIsAnswerShown] = useState(false)
   const [speechVoices, setSpeechVoices] = useState<SpeechSynthesisVoice[]>([])
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState('')
+  const hasHydrated = useTypingStore(state => state.hasHydrated)
+  const selectedVoiceLang = useTypingStore(state => state.selectedVoiceLang)
+  const selectedVoiceName = useTypingStore(state => state.selectedVoiceName)
+  const selectedVoiceURI = useTypingStore(state => state.selectedVoiceURI)
+  const setSelectedVoice = useTypingStore(state => state.setSelectedVoice)
+  const speechTimerRef = useRef<number | null>(null)
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
   const wasInputWrongRef = useRef(false)
 
   const currentKana = kanaList[kanaIndex]
@@ -20,9 +27,18 @@ export function useTypingPractice() {
     [speechVoices],
   )
   const selectedSpeechVoice = useMemo(
-    () => speechVoices.find(voice => voice.voiceURI === selectedVoiceURI),
-    [selectedVoiceURI, speechVoices],
+    () =>
+      speechVoices.find(voice => voice.voiceURI === selectedVoiceURI) ??
+      speechVoices.find(
+        voice =>
+          selectedVoiceName !== '' &&
+          selectedVoiceLang !== '' &&
+          voice.name === selectedVoiceName &&
+          voice.lang === selectedVoiceLang,
+      ),
+    [selectedVoiceLang, selectedVoiceName, selectedVoiceURI, speechVoices],
   )
+  const activeSpeechVoice = selectedSpeechVoice ?? japaneseSpeechVoices[0]
 
   const resetAnswerState = useCallback(() => {
     setTypedValue('')
@@ -41,28 +57,68 @@ export function useTypingPractice() {
     resetAnswerState()
   }, [resetAnswerState])
 
-  const handleSelectSpeechVoice = (voiceURI: string) => {
-    setSelectedVoiceURI(voiceURI)
-  }
-
   const speakKana = useCallback(
-    (kana: string) => {
-      window.speechSynthesis.cancel()
-
-      const utterance = new SpeechSynthesisUtterance(kana)
-
-      utterance.lang = selectedSpeechVoice?.lang ?? 'ja-JP'
-      utterance.rate = 0.9
-      utterance.pitch = 1
-
-      if (selectedSpeechVoice) {
-        utterance.voice = selectedSpeechVoice
+    (kana: string, speechVoice = activeSpeechVoice) => {
+      if (!hasHydrated || speechVoices.length === 0) {
+        return
       }
 
-      window.speechSynthesis.speak(utterance)
+      if (speechTimerRef.current) {
+        window.clearTimeout(speechTimerRef.current)
+      }
+
+      window.speechSynthesis.cancel()
+      window.speechSynthesis.resume()
+
+      speechTimerRef.current = window.setTimeout(() => {
+        speechTimerRef.current = null
+        const utterance = new SpeechSynthesisUtterance(kana)
+
+        utterance.lang = speechVoice?.lang ?? 'ja-JP'
+        utterance.rate = 0.9
+        utterance.pitch = 1
+
+        if (speechVoice) {
+          utterance.voice = speechVoice
+        }
+
+        utterance.onend = () => {
+          utteranceRef.current = null
+        }
+        utterance.onerror = () => {
+          utteranceRef.current = null
+        }
+
+        utteranceRef.current = utterance
+        window.speechSynthesis.resume()
+        window.speechSynthesis.speak(utterance)
+      }, 40)
     },
-    [selectedSpeechVoice],
+    [activeSpeechVoice, hasHydrated, speechVoices.length],
   )
+
+  const stopSpeaking = useCallback(() => {
+    if (speechTimerRef.current) {
+      window.clearTimeout(speechTimerRef.current)
+      speechTimerRef.current = null
+    }
+
+    utteranceRef.current = null
+    window.speechSynthesis.cancel()
+  }, [])
+
+  const handleSelectSpeechVoice = (voiceURI: string) => {
+    const speechVoice = speechVoices.find(voice => voice.voiceURI === voiceURI)
+
+    if (speechVoice) {
+      setSelectedVoice({
+        lang: speechVoice.lang,
+        name: speechVoice.name,
+        voiceURI: speechVoice.voiceURI,
+      })
+      speakKana(currentKana, speechVoice)
+    }
+  }
 
   const handleSpeakKana = useCallback(() => {
     speakKana(currentKana)
@@ -72,9 +128,9 @@ export function useTypingPractice() {
     handleSpeakKana()
 
     return () => {
-      window.speechSynthesis.cancel()
+      stopSpeaking()
     }
-  }, [handleSpeakKana])
+  }, [handleSpeakKana, stopSpeaking])
 
   useEffect(() => {
     if (isInputWrong && !wasInputWrongRef.current) {
@@ -85,32 +141,83 @@ export function useTypingPractice() {
   }, [handleSpeakKana, isInputWrong])
 
   useEffect(() => {
+    let voiceSyncTimer: number | null = null
+    let voiceSyncCount = 0
+
     const syncSpeechVoices = () => {
       const voices = window.speechSynthesis.getVoices()
       const japaneseVoices = voices.filter(voice => voice.lang.toLowerCase().startsWith('ja'))
       const preferredVoice =
         japaneseVoices.find(voice => /kyoko|otoya|nanami|haruka|ichiro|google/i.test(voice.name)) ??
         japaneseVoices[0]
+      const selectedVoiceByURI = voices.find(voice => voice.voiceURI === selectedVoiceURI)
+      const selectedVoiceByName = voices.find(
+        voice =>
+          selectedVoiceName !== '' &&
+          selectedVoiceLang !== '' &&
+          voice.name === selectedVoiceName &&
+          voice.lang === selectedVoiceLang,
+      )
 
       setSpeechVoices(voices)
 
-      if (preferredVoice && !selectedVoiceURI) {
-        setSelectedVoiceURI(preferredVoice.voiceURI)
+      if (!hasHydrated) {
+        return
       }
+
+      if (selectedVoiceByName && selectedVoiceByName.voiceURI !== selectedVoiceURI) {
+        setSelectedVoice({
+          lang: selectedVoiceByName.lang,
+          name: selectedVoiceByName.name,
+          voiceURI: selectedVoiceByName.voiceURI,
+        })
+
+        return
+      }
+
+      if (
+        preferredVoice &&
+        !selectedVoiceByURI &&
+        selectedVoiceURI === '' &&
+        selectedVoiceName === ''
+      ) {
+        setSelectedVoice({
+          lang: preferredVoice.lang,
+          name: preferredVoice.name,
+          voiceURI: preferredVoice.voiceURI,
+        })
+      }
+    }
+    const scheduleVoiceSync = () => {
+      if (voiceSyncCount >= 20 || window.speechSynthesis.getVoices().length > 0) {
+        return
+      }
+
+      voiceSyncCount += 1
+      voiceSyncTimer = window.setTimeout(() => {
+        syncSpeechVoices()
+        scheduleVoiceSync()
+      }, 250)
     }
 
     syncSpeechVoices()
+    scheduleVoiceSync()
     window.speechSynthesis.addEventListener('voiceschanged', syncSpeechVoices)
 
     return () => {
+      if (voiceSyncTimer) {
+        window.clearTimeout(voiceSyncTimer)
+      }
+
       window.speechSynthesis.removeEventListener('voiceschanged', syncSpeechVoices)
     }
-  }, [selectedVoiceURI])
+  }, [hasHydrated, selectedVoiceLang, selectedVoiceName, selectedVoiceURI, setSelectedVoice])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === ' ') {
         event.preventDefault()
+        window.speechSynthesis.resume()
         const nextSpacePressCount = spacePressCount + 1
 
         setActiveKey('space')
@@ -124,6 +231,7 @@ export function useTypingPractice() {
 
       if (key === '[') {
         event.preventDefault()
+        window.speechSynthesis.resume()
         setActiveKey('[')
         handlePreviousKana()
 
@@ -132,6 +240,7 @@ export function useTypingPractice() {
 
       if (key === ']') {
         event.preventDefault()
+        window.speechSynthesis.resume()
         setActiveKey(']')
         handleNextKana()
 
@@ -139,6 +248,7 @@ export function useTypingPractice() {
       }
 
       if (key === 'backspace') {
+        window.speechSynthesis.resume()
         setActiveKey('backspace')
         setTypedValue(value => value.slice(0, -1))
         setSpacePressCount(0)
@@ -148,6 +258,7 @@ export function useTypingPractice() {
       }
 
       if (/^[a-z]$/.test(key)) {
+        window.speechSynthesis.resume()
         const nextTypedValue = isInputWrong ? key : `${typedValue}${key}`
 
         setActiveKey(key)
@@ -198,6 +309,7 @@ export function useTypingPractice() {
     isAnswerShown,
     isInputWrong,
     japaneseSpeechVoices,
+    selectedVoiceName,
     selectedVoiceURI,
     typedValue,
   }
