@@ -11,7 +11,7 @@ export const TypingPage: FC = () => {
     currentKana,
     currentRomaji,
     handleNextKana,
-    handleReset,
+    handlePreviousKana,
     isAnswerShown,
     isInputWrong,
     typedValue,
@@ -27,7 +27,7 @@ export const TypingPage: FC = () => {
           isAnswerShown={isAnswerShown}
           isInputWrong={isInputWrong}
           onNextKana={handleNextKana}
-          onReset={handleReset}
+          onPreviousKana={handlePreviousKana}
         />
         <TypingKeyboard
           activeKey={activeKey}

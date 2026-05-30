@@ -20,14 +20,15 @@ export function useTypingPractice() {
     setIsAnswerShown(false)
   }, [])
 
-  const handleNextKana = () => {
+  const handleNextKana = useCallback(() => {
     setKanaIndex(index => (index + 1) % kanaList.length)
     resetAnswerState()
-  }
+  }, [resetAnswerState])
 
-  const handleReset = () => {
+  const handlePreviousKana = useCallback(() => {
+    setKanaIndex(index => (index - 1 + kanaList.length) % kanaList.length)
     resetAnswerState()
-  }
+  }, [resetAnswerState])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -43,6 +44,22 @@ export function useTypingPractice() {
       }
 
       const key = event.key.toLowerCase()
+
+      if (key === '[') {
+        event.preventDefault()
+        setActiveKey('[')
+        handlePreviousKana()
+
+        return
+      }
+
+      if (key === ']') {
+        event.preventDefault()
+        setActiveKey(']')
+        handleNextKana()
+
+        return
+      }
 
       if (key === 'backspace') {
         setActiveKey('backspace')
@@ -83,14 +100,22 @@ export function useTypingPractice() {
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [currentRomaji, isInputWrong, resetAnswerState, spacePressCount, typedValue])
+  }, [
+    currentRomaji,
+    handleNextKana,
+    handlePreviousKana,
+    isInputWrong,
+    resetAnswerState,
+    spacePressCount,
+    typedValue,
+  ])
 
   return {
     activeKey,
     currentKana,
     currentRomaji,
     handleNextKana,
-    handleReset,
+    handlePreviousKana,
     isAnswerShown,
     isInputWrong,
     typedValue,

@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { RotateCcw, Shuffle } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils/shadcn'
 import { Button } from '@/ui/shadcn/button'
 
@@ -10,7 +10,7 @@ export const TypingStage: FC<{
   isAnswerShown: boolean
   isInputWrong: boolean
   onNextKana: () => void
-  onReset: () => void
+  onPreviousKana: () => void
 }> = ({
   currentKana,
   currentRomaji,
@@ -18,7 +18,7 @@ export const TypingStage: FC<{
   isAnswerShown,
   isInputWrong,
   onNextKana,
-  onReset,
+  onPreviousKana,
 }) => {
   return (
     <section className="flex min-h-[52svh] flex-col items-center justify-center gap-7 text-center">
@@ -51,28 +51,44 @@ export const TypingStage: FC<{
         >
           {typedValue}
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
           <Button
             type="button"
             variant="outline"
             size="icon"
-            aria-label="reset"
-            title="reset"
+            aria-label="previous kana"
+            title="[ 上一个"
             className="border-[#d6c7b3] bg-[#fbf8f1] text-[#315463] shadow-sm hover:bg-[#ece3d3] hover:text-[#bd3f33] dark:border-[#2f4146] dark:bg-[#161d20] dark:text-[#ded3c1] dark:hover:bg-[#202b2f] dark:hover:text-[#f07862]"
-            onClick={onReset}
+            onClick={onPreviousKana}
           >
-            <RotateCcw />
+            <ChevronLeft />
           </Button>
+          <div className="flex items-center gap-2 text-[#687064] text-sm dark:text-[#a9b2a7]">
+            <span className="flex items-center gap-1">
+              <ChevronLeft className="size-4" />
+              <kbd className="rounded border border-[#d6c7b3] bg-[#fbf8f1] px-1.5 py-0.5 font-semibold text-[#315463] dark:border-[#2f4146] dark:bg-[#161d20] dark:text-[#ded3c1]">
+                [
+              </kbd>
+              上一个
+            </span>
+            <span className="flex items-center gap-1">
+              下一个
+              <kbd className="rounded border border-[#d6c7b3] bg-[#fbf8f1] px-1.5 py-0.5 font-semibold text-[#315463] dark:border-[#2f4146] dark:bg-[#161d20] dark:text-[#ded3c1]">
+                ]
+              </kbd>
+              <ChevronRight className="size-4" />
+            </span>
+          </div>
           <Button
             type="button"
             variant="outline"
             size="icon"
             aria-label="next kana"
-            title="next kana"
+            title="] 下一个"
             className="border-[#d6c7b3] bg-[#fbf8f1] text-[#315463] shadow-sm hover:bg-[#ece3d3] hover:text-[#bd3f33] dark:border-[#2f4146] dark:bg-[#161d20] dark:text-[#ded3c1] dark:hover:bg-[#202b2f] dark:hover:text-[#f07862]"
             onClick={onNextKana}
           >
-            <Shuffle />
+            <ChevronRight />
           </Button>
         </div>
         <p
