@@ -1,10 +1,12 @@
+import type { TypingLibrary } from './typing-data'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { toRomaji } from 'wanakana'
-import { kanaList } from './typing-data'
 import { useTypingStore } from './typing-store'
 
-export function useTypingPractice() {
-  const [kanaIndex, setKanaIndex] = useState(0)
+export function useTypingPractice(typingLibrary: TypingLibrary) {
+  const [kanaState, setKanaState] = useState({
+    index: 0,
+    libraryId: typingLibrary.id,
+  })
   const [typedValue, setTypedValue] = useState('')
   const [activeKey, setActiveKey] = useState('')
   const [spacePressCount, setSpacePressCount] = useState(0)
@@ -19,8 +21,11 @@ export function useTypingPractice() {
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
   const wasInputWrongRef = useRef(false)
 
-  const currentKana = kanaList[kanaIndex]
-  const currentRomaji = useMemo(() => toRomaji(currentKana), [currentKana])
+  const kanaIndex = kanaState.libraryId === typingLibrary.id ? kanaState.index : 0
+  const currentItem = typingLibrary.items[kanaIndex] ?? typingLibrary.items[0]
+  const currentKana = currentItem.kana
+  const currentRomaji = currentItem.romaji
+  const currentSpeechText = currentItem.speechText ?? currentKana
   const isInputWrong = typedValue.length >= currentRomaji.length && typedValue !== currentRomaji
   const japaneseSpeechVoices = useMemo(
     () => speechVoices.filter(voice => voice.lang.toLowerCase().startsWith('ja')),
@@ -48,14 +53,28 @@ export function useTypingPractice() {
   }, [])
 
   const handleNextKana = useCallback(() => {
-    setKanaIndex(index => (index + 1) % kanaList.length)
+    setKanaState(state => {
+      const currentIndex = state.libraryId === typingLibrary.id ? state.index : 0
+
+      return {
+        index: (currentIndex + 1) % typingLibrary.items.length,
+        libraryId: typingLibrary.id,
+      }
+    })
     resetAnswerState()
-  }, [resetAnswerState])
+  }, [resetAnswerState, typingLibrary.id, typingLibrary.items.length])
 
   const handlePreviousKana = useCallback(() => {
-    setKanaIndex(index => (index - 1 + kanaList.length) % kanaList.length)
+    setKanaState(state => {
+      const currentIndex = state.libraryId === typingLibrary.id ? state.index : 0
+
+      return {
+        index: (currentIndex - 1 + typingLibrary.items.length) % typingLibrary.items.length,
+        libraryId: typingLibrary.id,
+      }
+    })
     resetAnswerState()
-  }, [resetAnswerState])
+  }, [resetAnswerState, typingLibrary.id, typingLibrary.items.length])
 
   const speakKana = useCallback(
     (kana: string, speechVoice = activeSpeechVoice) => {
@@ -116,13 +135,22 @@ export function useTypingPractice() {
         name: speechVoice.name,
         voiceURI: speechVoice.voiceURI,
       })
-      speakKana(currentKana, speechVoice)
+      speakKana(currentSpeechText, speechVoice)
     }
   }
 
   const handleSpeakKana = useCallback(() => {
-    speakKana(currentKana)
-  }, [currentKana, speakKana])
+    speakKana(currentSpeechText)
+  }, [currentSpeechText, speakKana])
+
+  useEffect(() => {
+    setKanaState({
+      index: 0,
+      libraryId: typingLibrary.id,
+    })
+    wasInputWrongRef.current = false
+    resetAnswerState()
+  }, [resetAnswerState, typingLibrary.id])
 
   useEffect(() => {
     handleSpeakKana()
@@ -268,7 +296,14 @@ export function useTypingPractice() {
 
         if (nextTypedValue === currentRomaji) {
           window.setTimeout(() => {
-            setKanaIndex(index => (index + 1) % kanaList.length)
+            setKanaState(state => {
+              const currentIndex = state.libraryId === typingLibrary.id ? state.index : 0
+
+              return {
+                index: (currentIndex + 1) % typingLibrary.items.length,
+                libraryId: typingLibrary.id,
+              }
+            })
             resetAnswerState()
           }, 220)
         }
@@ -296,6 +331,8 @@ export function useTypingPractice() {
     resetAnswerState,
     spacePressCount,
     typedValue,
+    typingLibrary.id,
+    typingLibrary.items.length,
   ])
 
   return {

@@ -1,0 +1,30 @@
+import type { TypingLibrary } from './types'
+
+export const kanaYouonLibrary = {
+  description: '平假名拗音，练习 きゃ、しゃ、ちゃ、にゃ 等组合。',
+  id: 'kana-youon',
+  items: [
+    { kana: 'きゃ', romaji: 'kya' },
+    { kana: 'きゅ', romaji: 'kyu' },
+    { kana: 'きょ', romaji: 'kyo' },
+    { kana: 'しゃ', romaji: 'sha' },
+    { kana: 'しゅ', romaji: 'shu' },
+    { kana: 'しょ', romaji: 'sho' },
+    { kana: 'ちゃ', romaji: 'cha' },
+    { kana: 'ちゅ', romaji: 'chu' },
+    { kana: 'ちょ', romaji: 'cho' },
+    { kana: 'にゃ', romaji: 'nya' },
+    { kana: 'にゅ', romaji: 'nyu' },
+    { kana: 'にょ', romaji: 'nyo' },
+    { kana: 'ひゃ', romaji: 'hya' },
+    { kana: 'ひゅ', romaji: 'hyu' },
+    { kana: 'ひょ', romaji: 'hyo' },
+    { kana: 'みゃ', romaji: 'mya' },
+    { kana: 'みゅ', romaji: 'myu' },
+    { kana: 'みょ', romaji: 'myo' },
+    { kana: 'りゃ', romaji: 'rya' },
+    { kana: 'りゅ', romaji: 'ryu' },
+    { kana: 'りょ', romaji: 'ryo' },
+  ],
+  name: '拗音',
+} satisfies TypingLibrary
