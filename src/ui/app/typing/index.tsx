@@ -12,8 +12,12 @@ export const TypingPage: FC = () => {
     currentRomaji,
     handleNextKana,
     handlePreviousKana,
+    handleSelectSpeechVoice,
+    handleSpeakKana,
     isAnswerShown,
     isInputWrong,
+    japaneseSpeechVoices,
+    selectedVoiceURI,
     typedValue,
   } = useTypingPractice()
 
@@ -26,8 +30,12 @@ export const TypingPage: FC = () => {
           typedValue={typedValue}
           isAnswerShown={isAnswerShown}
           isInputWrong={isInputWrong}
+          japaneseSpeechVoices={japaneseSpeechVoices}
           onNextKana={handleNextKana}
           onPreviousKana={handlePreviousKana}
+          onSelectSpeechVoice={handleSelectSpeechVoice}
+          onSpeakKana={handleSpeakKana}
+          selectedVoiceURI={selectedVoiceURI}
         />
         <TypingKeyboard
           activeKey={activeKey}

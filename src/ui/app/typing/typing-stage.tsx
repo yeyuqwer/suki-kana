@@ -1,5 +1,6 @@
 import type { FC } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Volume2 } from 'lucide-react'
+import { useState } from 'react'
 import { cn } from '@/lib/utils/shadcn'
 import { Button } from '@/ui/shadcn/button'
 
@@ -9,17 +10,43 @@ export const TypingStage: FC<{
   typedValue: string
   isAnswerShown: boolean
   isInputWrong: boolean
+  japaneseSpeechVoices: SpeechSynthesisVoice[]
   onNextKana: () => void
   onPreviousKana: () => void
+  onSelectSpeechVoice: (voiceURI: string) => void
+  onSpeakKana: () => void
+  selectedVoiceURI: string
 }> = ({
   currentKana,
   currentRomaji,
   typedValue,
   isAnswerShown,
   isInputWrong,
+  japaneseSpeechVoices,
   onNextKana,
   onPreviousKana,
+  onSelectSpeechVoice,
+  onSpeakKana,
+  selectedVoiceURI,
 }) => {
+  const [isVoiceListOpen, setIsVoiceListOpen] = useState(false)
+  const selectedVoiceName =
+    japaneseSpeechVoices.find(voice => voice.voiceURI === selectedVoiceURI)?.name ??
+    '未找到日语语音'
+  const getVoiceGenderLabel = (voiceName: string) => {
+    const normalizedVoiceName = voiceName.toLowerCase()
+
+    if (/eddy|grandpa|reed|rocko|otoya|ichiro/.test(normalizedVoiceName)) {
+      return '男声'
+    }
+
+    if (/flo|grandma|kyoko|sandy|shelley|nanami|haruka/.test(normalizedVoiceName)) {
+      return '女声'
+    }
+
+    return '未知'
+  }
+
   return (
     <section className="flex min-h-[52svh] flex-col items-center justify-center gap-7 text-center">
       <div className="flex flex-col items-center gap-3">
@@ -90,6 +117,67 @@ export const TypingStage: FC<{
           >
             <ChevronRight />
           </Button>
+        </div>
+        <div className="flex w-full items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="play kana audio"
+            title="播放发音"
+            className="shrink-0 border-[#d6c7b3] bg-[#fbf8f1] text-[#315463] shadow-sm hover:bg-[#ece3d3] hover:text-[#bd3f33] dark:border-[#2f4146] dark:bg-[#161d20] dark:text-[#ded3c1] dark:hover:bg-[#202b2f] dark:hover:text-[#f07862]"
+            onClick={onSpeakKana}
+          >
+            <Volume2 />
+          </Button>
+          <div className="relative min-w-0 flex-1">
+            <button
+              type="button"
+              className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-[#d6c7b3] bg-[#fbf8f1] px-3 text-left text-[#315463] text-sm shadow-sm outline-none transition-colors hover:bg-[#ece3d3] dark:border-[#2f4146] dark:bg-[#161d20] dark:text-[#ded3c1] dark:hover:bg-[#202b2f]"
+              onClick={() => setIsVoiceListOpen(isOpen => !isOpen)}
+            >
+              <span className="truncate">{selectedVoiceName}</span>
+              <ChevronDown
+                className={cn(
+                  'size-4 shrink-0 transition-transform',
+                  isVoiceListOpen && 'rotate-180',
+                )}
+              />
+            </button>
+
+            {isVoiceListOpen && (
+              <div className="absolute right-0 bottom-full z-20 mb-2 min-w-full rounded-md border border-[#d6c7b3] bg-[#fbf8f1] p-1 shadow-lg dark:border-[#2f4146] dark:bg-[#161d20]">
+                {japaneseSpeechVoices.length === 0 && (
+                  <div className="px-3 py-2 text-[#687064] text-sm dark:text-[#a9b2a7]">
+                    未找到日语语音
+                  </div>
+                )}
+                {japaneseSpeechVoices.map(voice => (
+                  <button
+                    key={voice.voiceURI}
+                    type="button"
+                    className={cn(
+                      'flex w-full items-center justify-between gap-2 rounded px-3 py-2 text-left text-[#315463] text-sm transition-colors hover:bg-[#ece3d3] dark:text-[#ded3c1] dark:hover:bg-[#202b2f]',
+                      selectedVoiceURI === voice.voiceURI &&
+                        'bg-[#ece3d3] text-[#bd3f33] dark:bg-[#202b2f] dark:text-[#f07862]',
+                    )}
+                    onClick={() => {
+                      onSelectSpeechVoice(voice.voiceURI)
+                      setIsVoiceListOpen(false)
+                    }}
+                  >
+                    <span className="whitespace-nowrap">{voice.name}</span>
+                    <span className="ml-4 flex shrink-0 items-center gap-2">
+                      {selectedVoiceURI === voice.voiceURI && <Check className="size-4 shrink-0" />}
+                      <span className="rounded-full border border-[#d6c7b3] px-2 py-0.5 text-[#687064] text-xs dark:border-[#2f4146] dark:text-[#a9b2a7]">
+                        {getVoiceGenderLabel(voice.name)}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <p
           className={cn(
