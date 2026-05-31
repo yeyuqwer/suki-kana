@@ -12,7 +12,8 @@ import { TypingStage } from './typing-stage'
 
 export const TypingPage: FC = () => {
   const [isInputFocused, setIsInputFocused] = useState(false)
-  const { currentLibrary, libraryId, setLibraryId } = useTypingLibraryQuery()
+  const { currentLibrary, itemIndex, libraryId, setItemIndex, setLibraryId } =
+    useTypingLibraryQuery()
   const handlePracticeInput = useCallback(() => {
     const typingInput = document.querySelector<HTMLElement>('[data-typing-input]')
 
@@ -33,7 +34,7 @@ export const TypingPage: FC = () => {
     selectedVoiceName,
     selectedVoiceURI,
     typedValue,
-  } = useTypingPractice(currentLibrary, handlePracticeInput)
+  } = useTypingPractice(currentLibrary, itemIndex, setItemIndex, handlePracticeInput)
   const isImmersiveMode = isInputFocused || typedValue.length > 0
 
   useEffect(() => {
