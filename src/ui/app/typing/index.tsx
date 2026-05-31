@@ -105,7 +105,6 @@ export const TypingPage: FC = () => {
         />
         <TypingFinishModal
           accuracy={finishSummary?.accuracy ?? 0}
-          elapsedSeconds={finishSummary?.elapsedSeconds ?? 0}
           isOpen={finishSummary !== null}
           onChooseLibrary={() => {
             handleChooseLibrary()

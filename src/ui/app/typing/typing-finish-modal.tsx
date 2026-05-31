@@ -1,33 +1,19 @@
 import type { FC } from 'react'
 import type { TypingPracticeItem } from './typing-data'
-import { BookOpen, Clock3, RotateCcw, Target } from 'lucide-react'
+import { BookOpen, RotateCcw, Target } from 'lucide-react'
 import { Button } from '@/ui/shadcn/button'
 
 export const TypingFinishModal: FC<{
   accuracy: number
-  elapsedSeconds: number
   isOpen: boolean
   onChooseLibrary: () => void
   onRestartAll: () => void
   onRestartWrong: () => void
   wrongItems: TypingPracticeItem[]
-}> = ({
-  accuracy,
-  elapsedSeconds,
-  isOpen,
-  onChooseLibrary,
-  onRestartAll,
-  onRestartWrong,
-  wrongItems,
-}) => {
+}> = ({ accuracy, isOpen, onChooseLibrary, onRestartAll, onRestartWrong, wrongItems }) => {
   if (!isOpen) {
     return null
   }
-
-  const elapsedMinutes = Math.floor(elapsedSeconds / 60)
-  const remainingSeconds = elapsedSeconds % 60
-  const elapsedText =
-    elapsedMinutes > 0 ? `${elapsedMinutes} 分 ${remainingSeconds} 秒` : `${remainingSeconds} 秒`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#202321]/45 px-4 backdrop-blur-md dark:bg-black/55">
@@ -38,17 +24,10 @@ export const TypingFinishModal: FC<{
         </div>
 
         <div className="p-5">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-md border border-[#d6c7b3] bg-[#f5f1ea] p-4 dark:border-[#2f4146] dark:bg-[#0f1315]">
-              <Clock3 className="mb-3 size-5 text-[#315463] dark:text-[#86a8a1]" />
-              <p className="text-[#687064] text-sm dark:text-[#a9b2a7]">学习时间</p>
-              <p className="mt-1 font-semibold text-2xl">{elapsedText}</p>
-            </div>
-            <div className="rounded-md border border-[#d6c7b3] bg-[#f5f1ea] p-4 dark:border-[#2f4146] dark:bg-[#0f1315]">
-              <Target className="mb-3 size-5 text-[#315463] dark:text-[#86a8a1]" />
-              <p className="text-[#687064] text-sm dark:text-[#a9b2a7]">正确率</p>
-              <p className="mt-1 font-semibold text-2xl">{accuracy}%</p>
-            </div>
+          <div className="rounded-md border border-[#d6c7b3] bg-[#f5f1ea] p-4 dark:border-[#2f4146] dark:bg-[#0f1315]">
+            <Target className="mb-3 size-5 text-[#315463] dark:text-[#86a8a1]" />
+            <p className="text-[#687064] text-sm dark:text-[#a9b2a7]">正确率</p>
+            <p className="mt-1 font-semibold text-2xl">{accuracy}%</p>
           </div>
 
           <div className="mt-4 rounded-md border border-[#d6c7b3] bg-[#f5f1ea] p-4 dark:border-[#2f4146] dark:bg-[#0f1315]">

@@ -20,10 +20,8 @@ export function useTypingPractice(
   const [practiceItems, setPracticeItems] = useState(typingLibrary.items)
   const [finishSummary, setFinishSummary] = useState<{
     accuracy: number
-    elapsedSeconds: number
     wrongItems: TypingPracticeItem[]
   } | null>(null)
-  const roundStartTimeRef = useRef(Date.now())
   const wasInputWrongRef = useRef(false)
   const wrongAttemptCountRef = useRef(0)
   const wrongItemsRef = useRef(new Map<string, TypingPracticeItem>())
@@ -72,7 +70,6 @@ export function useTypingPractice(
 
       setFinishSummary({
         accuracy: Math.round((correctItemCount / practiceItems.length) * 100),
-        elapsedSeconds: Math.max(1, Math.round((Date.now() - roundStartTimeRef.current) / 1000)),
         wrongItems,
       })
 
@@ -147,7 +144,6 @@ export function useTypingPractice(
     setFinishSummary(null)
     setItemIndex(0)
     wrongItemsRef.current = new Map()
-    roundStartTimeRef.current = Date.now()
     resetAnswerState()
   }, [resetAnswerState, setItemIndex, typingLibrary.items])
 
@@ -163,7 +159,6 @@ export function useTypingPractice(
     setFinishSummary(null)
     setItemIndex(0)
     wrongItemsRef.current = new Map()
-    roundStartTimeRef.current = Date.now()
     resetAnswerState()
   }, [finishSummary?.wrongItems, resetAnswerState, setItemIndex])
 
@@ -176,7 +171,6 @@ export function useTypingPractice(
     setFinishSummary(null)
     setItemIndex(0)
     wrongItemsRef.current = new Map()
-    roundStartTimeRef.current = Date.now()
     wasInputWrongRef.current = false
     setHasSubmittedWrongAnswer(false)
     resetAnswerState()
