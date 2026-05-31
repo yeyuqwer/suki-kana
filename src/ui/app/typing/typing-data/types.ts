@@ -19,3 +19,13 @@ export type TypingLibrary = {
   items: readonly [TypingPracticeItem, ...TypingPracticeItem[]]
   name: string
 }
+
+export const typingPracticeModeIds = ['kana-to-romaji', 'romaji-to-kana'] as const
+
+export type TypingPracticeModeId = (typeof typingPracticeModeIds)[number]
+
+export type TypingPracticeMode = {
+  description: string
+  id: TypingPracticeModeId
+  name: string
+}

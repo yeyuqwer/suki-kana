@@ -2,9 +2,12 @@ import { parseAsInteger, parseAsStringLiteral, useQueryState } from 'nuqs'
 import { useCallback, useEffect } from 'react'
 import {
   defaultTypingLibraryId,
+  defaultTypingPracticeModeId,
   getTypingLibrary,
   type TypingLibraryId,
+  type TypingPracticeModeId,
   typingLibraryIds,
+  typingPracticeModeIds,
 } from '../typing-data'
 
 const libraryParser = parseAsStringLiteral(typingLibraryIds)
@@ -19,10 +22,18 @@ const itemParser = parseAsInteger.withDefault(0).withOptions({
   history: 'replace',
   shallow: true,
 })
+const modeParser = parseAsStringLiteral(typingPracticeModeIds)
+  .withDefault(defaultTypingPracticeModeId)
+  .withOptions({
+    clearOnDefault: true,
+    history: 'replace',
+    shallow: true,
+  })
 
 export function useTypingLibraryQuery() {
   const [libraryId, setQueryLibraryId] = useQueryState('library', libraryParser)
   const [itemIndex, setQueryItemIndex] = useQueryState('item', itemParser)
+  const [modeId, setQueryModeId] = useQueryState('mode', modeParser)
   const currentLibrary = getTypingLibrary(libraryId)
   const currentItemIndex = itemIndex >= 0 && itemIndex < currentLibrary.items.length ? itemIndex : 0
 
@@ -45,12 +56,21 @@ export function useTypingLibraryQuery() {
     },
     [setQueryItemIndex],
   )
+  const setModeId = useCallback(
+    (nextModeId: TypingPracticeModeId) => {
+      void setQueryModeId(nextModeId)
+      void setQueryItemIndex(0)
+    },
+    [setQueryItemIndex, setQueryModeId],
+  )
 
   return {
     currentLibrary,
     itemIndex: currentItemIndex,
     libraryId,
+    modeId,
     setItemIndex,
     setLibraryId,
+    setModeId,
   }
 }

@@ -1,39 +1,31 @@
 import { useEffect } from 'react'
 
 export function useTypingKeyboardEvents({
-  currentRomaji,
   handleNextKana,
   handlePreviousKana,
   isDisabled,
-  isInputWrong,
-  onCorrectInput,
   onPracticeInput,
-  resetAnswerState,
   setActiveKey,
   setIsAnswerShown,
   setSpacePressCount,
-  setTypedValue,
   spacePressCount,
-  typedValue,
 }: {
-  currentRomaji: string
   handleNextKana: () => void
   handlePreviousKana: () => void
   isDisabled: boolean
-  isInputWrong: boolean
-  onCorrectInput: () => void
   onPracticeInput?: () => void
-  resetAnswerState: () => void
   setActiveKey: (activeKey: string) => void
   setIsAnswerShown: (isAnswerShown: boolean) => void
   setSpacePressCount: (spacePressCount: number) => void
-  setTypedValue: (typedValue: string | ((value: string) => string)) => void
   spacePressCount: number
-  typedValue: string
 }) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isDisabled) {
+        return
+      }
+
+      if (event.isComposing || event.key === 'Process' || event.keyCode === 229) {
         return
       }
 
@@ -72,7 +64,6 @@ export function useTypingKeyboardEvents({
       if (key === 'backspace') {
         window.speechSynthesis.resume()
         setActiveKey('backspace')
-        setTypedValue(value => value.slice(0, -1))
         setSpacePressCount(0)
         setIsAnswerShown(false)
 
@@ -81,20 +72,11 @@ export function useTypingKeyboardEvents({
 
       if (/^[a-z]$/.test(key)) {
         window.speechSynthesis.resume()
-        const nextTypedValue = isInputWrong ? key : `${typedValue}${key}`
 
         onPracticeInput?.()
         setActiveKey(key)
-        setTypedValue(nextTypedValue)
         setSpacePressCount(0)
         setIsAnswerShown(false)
-
-        if (nextTypedValue === currentRomaji) {
-          window.setTimeout(() => {
-            onCorrectInput()
-            resetAnswerState()
-          }, 220)
-        }
       }
     }
 
@@ -112,19 +94,13 @@ export function useTypingKeyboardEvents({
       window.removeEventListener('keyup', handleKeyUp)
     }
   }, [
-    currentRomaji,
     handleNextKana,
     handlePreviousKana,
     isDisabled,
-    isInputWrong,
-    onCorrectInput,
     onPracticeInput,
-    resetAnswerState,
     setActiveKey,
     setIsAnswerShown,
     setSpacePressCount,
-    setTypedValue,
     spacePressCount,
-    typedValue,
   ])
 }

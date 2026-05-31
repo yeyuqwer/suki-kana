@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import { Check, ChevronDown, ChevronLeft, ChevronRight, Volume2 } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { cn } from '@/lib/utils/shadcn'
 import { Button } from '@/ui/shadcn/button'
 
@@ -11,7 +11,9 @@ export const TypingStage: FC<{
   isAnswerShown: boolean
   isInputWrong: boolean
   japaneseSpeechVoices: SpeechSynthesisVoice[]
+  onInputCompositionChange: (isComposing: boolean) => void
   onInputFocusChange: (isFocused: boolean) => void
+  onInputValueChange: (value: string, shouldCheckAnswer?: boolean) => void
   onNextKana: () => void
   onPreviousKana: () => void
   onSelectSpeechVoice: (voiceURI: string) => void
@@ -25,7 +27,9 @@ export const TypingStage: FC<{
   isAnswerShown,
   isInputWrong,
   japaneseSpeechVoices,
+  onInputCompositionChange,
   onInputFocusChange,
+  onInputValueChange,
   onNextKana,
   onPreviousKana,
   onSelectSpeechVoice,
@@ -34,6 +38,7 @@ export const TypingStage: FC<{
   selectedVoiceURI,
 }) => {
   const [isVoiceListOpen, setIsVoiceListOpen] = useState(false)
+  const isComposingRef = useRef(false)
   const displayedVoiceName =
     japaneseSpeechVoices.find(voice => voice.voiceURI === selectedVoiceURI)?.name ??
     (selectedVoiceName || '未找到日语语音')
@@ -73,20 +78,30 @@ export const TypingStage: FC<{
       </div>
 
       <div className="flex w-full max-w-md flex-col items-center gap-3">
-        <div
+        <input
           data-typing-input
-          role="textbox"
-          tabIndex={0}
+          autoCapitalize="off"
+          autoComplete="off"
+          spellCheck={false}
+          value={typedValue}
           className={cn(
-            'h-14 w-full border-[#315463] border-b-2 px-3 text-center font-medium text-5xl text-[#315463] tracking-normal outline-none transition-colors focus:border-[#bd3f33] dark:border-[#86a8a1] dark:text-[#ded3c1] dark:focus:border-[#f07862]',
+            'h-14 w-full border-[#315463] border-b-2 bg-transparent px-3 text-center font-medium text-5xl text-[#315463] tracking-normal outline-none transition-colors focus:border-[#bd3f33] dark:border-[#86a8a1] dark:text-[#ded3c1] dark:focus:border-[#f07862]',
             isInputWrong &&
               'typing-input-shake border-[#bd3f33] text-[#bd3f33] dark:border-[#f07862] dark:text-[#f07862]',
           )}
           onBlur={() => onInputFocusChange(false)}
+          onChange={event => onInputValueChange(event.target.value, !isComposingRef.current)}
+          onCompositionEnd={event => {
+            isComposingRef.current = false
+            onInputCompositionChange(false)
+            onInputValueChange(event.currentTarget.value)
+          }}
+          onCompositionStart={() => {
+            isComposingRef.current = true
+            onInputCompositionChange(true)
+          }}
           onFocus={() => onInputFocusChange(true)}
-        >
-          {typedValue}
-        </div>
+        />
         <div className="flex items-center gap-3">
           <Button
             type="button"

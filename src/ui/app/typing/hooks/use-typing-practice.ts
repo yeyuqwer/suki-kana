@@ -1,10 +1,12 @@
-import type { TypingLibrary, TypingPracticeItem } from '../typing-data'
+import type { TypingLibrary, TypingPracticeItem, TypingPracticeModeId } from '../typing-data'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getTypingPracticePrompt } from '../typing-data'
 import { useTypingKeyboardEvents } from './use-typing-keyboard-events'
 import { useTypingSpeech } from './use-typing-speech'
 
 export function useTypingPractice(
   typingLibrary: TypingLibrary,
+  modeId: TypingPracticeModeId,
   itemIndex: number,
   setItemIndex: (itemIndex: number) => void,
   onPracticeInput?: () => void,
@@ -13,6 +15,7 @@ export function useTypingPractice(
   const [activeKey, setActiveKey] = useState('')
   const [spacePressCount, setSpacePressCount] = useState(0)
   const [isAnswerShown, setIsAnswerShown] = useState(false)
+  const [isInputComposing, setIsInputComposing] = useState(false)
   const [practiceItems, setPracticeItems] = useState(typingLibrary.items)
   const [finishSummary, setFinishSummary] = useState<{
     accuracy: number
@@ -25,17 +28,20 @@ export function useTypingPractice(
   const wrongItemsRef = useRef(new Map<string, TypingPracticeItem>())
 
   const currentItem = practiceItems[itemIndex] ?? practiceItems[0]
-  const currentKana = currentItem.kana
-  const currentRomaji = currentItem.romaji
-  const currentSpeechText = currentItem.speechText ?? currentKana
-  const isInputWrong = typedValue.length >= currentRomaji.length && typedValue !== currentRomaji
+  const currentPrompt = getTypingPracticePrompt(currentItem, modeId)
+  const currentKana = currentPrompt.prompt
+  const currentRomaji = currentPrompt.answer
+  const isInputWrong =
+    !isInputComposing &&
+    typedValue.length >= currentPrompt.answer.length &&
+    typedValue !== currentPrompt.answer
   const {
     handleSelectSpeechVoice,
     handleSpeakKana,
     japaneseSpeechVoices,
     selectedVoiceName,
     selectedVoiceURI,
-  } = useTypingSpeech(currentSpeechText)
+  } = useTypingSpeech(currentPrompt.speechText)
 
   const resetAnswerState = useCallback(() => {
     setTypedValue('')
@@ -71,6 +77,31 @@ export function useTypingPractice(
 
     setItemIndex((itemIndex + 1) % practiceItems.length)
   }, [itemIndex, practiceItems.length, setItemIndex])
+
+  const handleTypedValueChange = useCallback(
+    (nextValue: string, shouldCheckAnswer = true) => {
+      const normalizedValue =
+        isInputWrong && nextValue.length > typedValue.length
+          ? nextValue.slice(typedValue.length)
+          : nextValue
+
+      setTypedValue(normalizedValue)
+      setSpacePressCount(0)
+      setIsAnswerShown(false)
+
+      if (shouldCheckAnswer && normalizedValue === currentPrompt.answer) {
+        window.setTimeout(() => {
+          handleCorrectInput()
+          resetAnswerState()
+        }, 220)
+      }
+    },
+    [currentPrompt.answer, handleCorrectInput, isInputWrong, resetAnswerState, typedValue.length],
+  )
+
+  const handleInputCompositionChange = useCallback((isComposing: boolean) => {
+    setIsInputComposing(isComposing)
+  }, [])
 
   const handleRestartAll = useCallback(() => {
     setPracticeItems(typingLibrary.items)
@@ -126,20 +157,14 @@ export function useTypingPractice(
   }, [currentItem, handleSpeakKana, isAnswerShown, isInputWrong])
 
   useTypingKeyboardEvents({
-    currentRomaji,
     handleNextKana,
     handlePreviousKana,
     isDisabled: finishSummary !== null,
-    isInputWrong,
-    onCorrectInput: handleCorrectInput,
     onPracticeInput,
-    resetAnswerState,
     setActiveKey,
     setIsAnswerShown,
     setSpacePressCount,
-    setTypedValue,
     spacePressCount,
-    typedValue,
   })
 
   return {
@@ -151,6 +176,8 @@ export function useTypingPractice(
     handleSpeakKana,
     handleSelectSpeechVoice,
     handleChooseLibrary,
+    handleInputCompositionChange,
+    handleTypedValueChange,
     isAnswerShown,
     isInputWrong,
     japaneseSpeechVoices,

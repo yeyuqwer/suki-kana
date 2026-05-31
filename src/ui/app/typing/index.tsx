@@ -14,7 +14,7 @@ import { TypingStage } from './typing-stage'
 export const TypingPage: FC = () => {
   const [isInputFocused, setIsInputFocused] = useState(false)
   const [isLibraryMenuOpen, setIsLibraryMenuOpen] = useState(false)
-  const { currentLibrary, itemIndex, libraryId, setItemIndex, setLibraryId } =
+  const { currentLibrary, itemIndex, libraryId, modeId, setItemIndex, setLibraryId, setModeId } =
     useTypingLibraryQuery()
   const handlePracticeInput = useCallback(() => {
     const typingInput = document.querySelector<HTMLElement>('[data-typing-input]')
@@ -29,8 +29,10 @@ export const TypingPage: FC = () => {
     handleNextKana,
     handlePreviousKana,
     handleChooseLibrary,
+    handleInputCompositionChange,
     handleSelectSpeechVoice,
     handleSpeakKana,
+    handleTypedValueChange,
     finishSummary,
     isAnswerShown,
     isInputWrong,
@@ -40,7 +42,7 @@ export const TypingPage: FC = () => {
     selectedVoiceName,
     selectedVoiceURI,
     typedValue,
-  } = useTypingPractice(currentLibrary, itemIndex, setItemIndex, handlePracticeInput)
+  } = useTypingPractice(currentLibrary, modeId, itemIndex, setItemIndex, handlePracticeInput)
   const isImmersiveMode = isInputFocused || typedValue.length > 0
 
   useEffect(() => {
@@ -70,7 +72,9 @@ export const TypingPage: FC = () => {
             libraries={typingLibraries}
             onOpenChange={setIsLibraryMenuOpen}
             onSelectLibrary={setLibraryId}
+            onSelectMode={setModeId}
             selectedLibraryId={libraryId}
+            selectedModeId={modeId}
           />
         </div>
         <TypingStage
@@ -80,7 +84,9 @@ export const TypingPage: FC = () => {
           isAnswerShown={isAnswerShown}
           isInputWrong={isInputWrong}
           japaneseSpeechVoices={japaneseSpeechVoices}
+          onInputCompositionChange={handleInputCompositionChange}
           onInputFocusChange={setIsInputFocused}
+          onInputValueChange={handleTypedValueChange}
           onNextKana={handleNextKana}
           onPreviousKana={handlePreviousKana}
           onSelectSpeechVoice={handleSelectSpeechVoice}
