@@ -24,14 +24,15 @@ export const TypingPage: FC = () => {
   }, [])
   const {
     activeKey,
-    currentKana,
-    currentRomaji,
+    currentInputHint,
+    currentPrompt,
     handleNextKana,
     handlePreviousKana,
     handleChooseLibrary,
     handleInputCompositionChange,
     handleSelectSpeechVoice,
     handleSpeakKana,
+    handleSubmitInput,
     handleTypedValueChange,
     finishSummary,
     isAnswerShown,
@@ -39,6 +40,7 @@ export const TypingPage: FC = () => {
     japaneseSpeechVoices,
     restartAll,
     restartWrong,
+    requiresManualSubmit,
     selectedVoiceName,
     selectedVoiceURI,
     typedValue,
@@ -78,8 +80,8 @@ export const TypingPage: FC = () => {
           />
         </div>
         <TypingStage
-          currentKana={currentKana}
-          currentRomaji={currentRomaji}
+          currentAnswer={currentInputHint}
+          currentPrompt={currentPrompt}
           typedValue={typedValue}
           isAnswerShown={isAnswerShown}
           isInputWrong={isInputWrong}
@@ -91,12 +93,14 @@ export const TypingPage: FC = () => {
           onPreviousKana={handlePreviousKana}
           onSelectSpeechVoice={handleSelectSpeechVoice}
           onSpeakKana={handleSpeakKana}
+          onSubmitInput={handleSubmitInput}
+          requiresManualSubmit={requiresManualSubmit}
           selectedVoiceName={selectedVoiceName}
           selectedVoiceURI={selectedVoiceURI}
         />
         <TypingKeyboard
           activeKey={activeKey}
-          currentRomaji={currentRomaji}
+          currentRomaji={currentInputHint}
           isAnswerShown={isAnswerShown}
         />
         <TypingFinishModal

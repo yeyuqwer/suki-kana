@@ -8,9 +8,11 @@ export const typingLibraryIds = [
 export type TypingLibraryId = (typeof typingLibraryIds)[number]
 
 export type TypingPracticeItem = {
+  inputHints?: readonly string[]
   kana: string
   romaji: string
   speechText?: string
+  typingRomaji?: string
 }
 
 export type TypingLibrary = {
@@ -20,7 +22,12 @@ export type TypingLibrary = {
   name: string
 }
 
-export const typingPracticeModeIds = ['kana-to-romaji', 'romaji-to-kana'] as const
+export const typingPracticeModeIds = [
+  'kana-to-romaji',
+  'romaji-to-kana',
+  'romaji-to-romaji',
+  'kana-to-kana',
+] as const
 
 export type TypingPracticeModeId = (typeof typingPracticeModeIds)[number]
 

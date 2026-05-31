@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils/shadcn'
 import { Button } from '@/ui/shadcn/button'
 
 export const TypingStage: FC<{
-  currentKana: string
-  currentRomaji: string
+  currentAnswer: string
+  currentPrompt: string
   typedValue: string
   isAnswerShown: boolean
   isInputWrong: boolean
@@ -18,11 +18,13 @@ export const TypingStage: FC<{
   onPreviousKana: () => void
   onSelectSpeechVoice: (voiceURI: string) => void
   onSpeakKana: () => void
+  onSubmitInput: () => void
+  requiresManualSubmit: boolean
   selectedVoiceName: string
   selectedVoiceURI: string
 }> = ({
-  currentKana,
-  currentRomaji,
+  currentAnswer,
+  currentPrompt,
   typedValue,
   isAnswerShown,
   isInputWrong,
@@ -34,6 +36,8 @@ export const TypingStage: FC<{
   onPreviousKana,
   onSelectSpeechVoice,
   onSpeakKana,
+  onSubmitInput,
+  requiresManualSubmit,
   selectedVoiceName,
   selectedVoiceURI,
 }) => {
@@ -65,7 +69,7 @@ export const TypingStage: FC<{
             isAnswerShown && 'text-[#bd3f33] dark:text-[#f07862]',
           )}
         >
-          {isAnswerShown ? currentRomaji : ''}
+          {isAnswerShown ? currentAnswer : ''}
         </p>
         <h1
           className={cn(
@@ -73,7 +77,7 @@ export const TypingStage: FC<{
             isAnswerShown && 'text-[#bd3f33] dark:text-[#f07862]',
           )}
         >
-          {currentKana}
+          {currentPrompt}
         </h1>
       </div>
 
@@ -101,7 +105,22 @@ export const TypingStage: FC<{
             onInputCompositionChange(true)
           }}
           onFocus={() => onInputFocusChange(true)}
+          onKeyDown={event => {
+            if (event.key === 'Enter' && requiresManualSubmit && !isComposingRef.current) {
+              event.preventDefault()
+              event.stopPropagation()
+              onSubmitInput()
+            }
+          }}
         />
+        <p
+          className={cn(
+            'min-h-6 text-center font-semibold text-[#687064] text-base transition-colors dark:text-[#a9b2a7]',
+            !requiresManualSubmit && 'text-transparent dark:text-transparent',
+          )}
+        >
+          按 Enter 键提交
+        </p>
         <div className="flex items-center gap-3">
           <Button
             type="button"

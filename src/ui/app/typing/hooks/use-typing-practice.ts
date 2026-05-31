@@ -16,6 +16,7 @@ export function useTypingPractice(
   const [spacePressCount, setSpacePressCount] = useState(0)
   const [isAnswerShown, setIsAnswerShown] = useState(false)
   const [isInputComposing, setIsInputComposing] = useState(false)
+  const [hasSubmittedWrongAnswer, setHasSubmittedWrongAnswer] = useState(false)
   const [practiceItems, setPracticeItems] = useState(typingLibrary.items)
   const [finishSummary, setFinishSummary] = useState<{
     accuracy: number
@@ -29,12 +30,14 @@ export function useTypingPractice(
 
   const currentItem = practiceItems[itemIndex] ?? practiceItems[0]
   const currentPrompt = getTypingPracticePrompt(currentItem, modeId)
-  const currentKana = currentPrompt.prompt
-  const currentRomaji = currentPrompt.answer
+  const currentAnswer = currentPrompt.answer
+  const currentInputHint = currentPrompt.inputHint
+  const requiresManualSubmit = currentPrompt.requiresManualSubmit
   const isInputWrong =
     !isInputComposing &&
-    typedValue.length >= currentPrompt.answer.length &&
-    typedValue !== currentPrompt.answer
+    (requiresManualSubmit
+      ? hasSubmittedWrongAnswer
+      : typedValue.length >= currentAnswer.length && typedValue !== currentAnswer)
   const {
     handleSelectSpeechVoice,
     handleSpeakKana,
@@ -48,6 +51,7 @@ export function useTypingPractice(
     setActiveKey('')
     setSpacePressCount(0)
     setIsAnswerShown(false)
+    setHasSubmittedWrongAnswer(false)
     wrongAttemptCountRef.current = 0
   }, [])
 
@@ -80,28 +84,63 @@ export function useTypingPractice(
 
   const handleTypedValueChange = useCallback(
     (nextValue: string, shouldCheckAnswer = true) => {
+      if (nextValue.endsWith('[') || nextValue.endsWith(']')) {
+        return
+      }
+
       const normalizedValue =
-        isInputWrong && nextValue.length > typedValue.length
-          ? nextValue.slice(typedValue.length)
-          : nextValue
+        isInputWrong && nextValue.length > typedValue.length ? (nextValue.at(-1) ?? '') : nextValue
 
       setTypedValue(normalizedValue)
       setSpacePressCount(0)
       setIsAnswerShown(false)
+      setHasSubmittedWrongAnswer(false)
 
-      if (shouldCheckAnswer && normalizedValue === currentPrompt.answer) {
+      if (!requiresManualSubmit && shouldCheckAnswer && normalizedValue === currentAnswer) {
         window.setTimeout(() => {
           handleCorrectInput()
           resetAnswerState()
         }, 220)
       }
     },
-    [currentPrompt.answer, handleCorrectInput, isInputWrong, resetAnswerState, typedValue.length],
+    [
+      currentAnswer,
+      handleCorrectInput,
+      isInputWrong,
+      requiresManualSubmit,
+      resetAnswerState,
+      typedValue.length,
+    ],
   )
 
   const handleInputCompositionChange = useCallback((isComposing: boolean) => {
     setIsInputComposing(isComposing)
   }, [])
+
+  const handleSubmitInput = useCallback(() => {
+    if (isInputComposing) {
+      return
+    }
+
+    if (typedValue === currentAnswer) {
+      handleCorrectInput()
+      resetAnswerState()
+
+      return
+    }
+
+    setHasSubmittedWrongAnswer(true)
+    wrongItemsRef.current.set(`${currentItem.kana}-${currentItem.romaji}`, currentItem)
+    handleSpeakKana()
+  }, [
+    currentAnswer,
+    currentItem,
+    handleCorrectInput,
+    handleSpeakKana,
+    isInputComposing,
+    resetAnswerState,
+    typedValue,
+  ])
 
   const handleRestartAll = useCallback(() => {
     setPracticeItems(typingLibrary.items)
@@ -139,6 +178,7 @@ export function useTypingPractice(
     wrongItemsRef.current = new Map()
     roundStartTimeRef.current = Date.now()
     wasInputWrongRef.current = false
+    setHasSubmittedWrongAnswer(false)
     resetAnswerState()
   }, [resetAnswerState, setItemIndex, typingLibrary.items])
 
@@ -159,8 +199,11 @@ export function useTypingPractice(
   useTypingKeyboardEvents({
     handleNextKana,
     handlePreviousKana,
+    handleSubmitInput,
     isDisabled: finishSummary !== null,
+    isInputComposing,
     onPracticeInput,
+    requiresManualSubmit,
     setActiveKey,
     setIsAnswerShown,
     setSpacePressCount,
@@ -169,19 +212,22 @@ export function useTypingPractice(
 
   return {
     activeKey,
-    currentKana,
-    currentRomaji,
+    currentAnswer,
+    currentInputHint,
+    currentPrompt: currentPrompt.prompt,
     handleNextKana,
     handlePreviousKana,
     handleSpeakKana,
     handleSelectSpeechVoice,
     handleChooseLibrary,
     handleInputCompositionChange,
+    handleSubmitInput,
     handleTypedValueChange,
     isAnswerShown,
     isInputWrong,
     japaneseSpeechVoices,
     finishSummary,
+    requiresManualSubmit,
     restartAll: handleRestartAll,
     restartWrong: handleRestartWrong,
     selectedVoiceName,

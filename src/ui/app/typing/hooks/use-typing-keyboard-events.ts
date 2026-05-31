@@ -3,7 +3,10 @@ import { useEffect } from 'react'
 export function useTypingKeyboardEvents({
   handleNextKana,
   handlePreviousKana,
+  handleSubmitInput,
   isDisabled,
+  isInputComposing,
+  requiresManualSubmit,
   onPracticeInput,
   setActiveKey,
   setIsAnswerShown,
@@ -12,7 +15,10 @@ export function useTypingKeyboardEvents({
 }: {
   handleNextKana: () => void
   handlePreviousKana: () => void
+  handleSubmitInput: () => void
   isDisabled: boolean
+  isInputComposing: boolean
+  requiresManualSubmit: boolean
   onPracticeInput?: () => void
   setActiveKey: (activeKey: string) => void
   setIsAnswerShown: (isAnswerShown: boolean) => void
@@ -26,6 +32,15 @@ export function useTypingKeyboardEvents({
       }
 
       if (event.isComposing || event.key === 'Process' || event.keyCode === 229) {
+        return
+      }
+
+      if (event.key === 'Enter' && requiresManualSubmit && !isInputComposing) {
+        event.preventDefault()
+        window.speechSynthesis.resume()
+        setActiveKey('enter')
+        handleSubmitInput()
+
         return
       }
 
@@ -96,8 +111,11 @@ export function useTypingKeyboardEvents({
   }, [
     handleNextKana,
     handlePreviousKana,
+    handleSubmitInput,
     isDisabled,
+    isInputComposing,
     onPracticeInput,
+    requiresManualSubmit,
     setActiveKey,
     setIsAnswerShown,
     setSpacePressCount,

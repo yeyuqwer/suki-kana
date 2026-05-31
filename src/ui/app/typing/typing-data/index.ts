@@ -33,12 +33,22 @@ export const typingPracticeModes = [
   {
     description: '看假名，输入对应的罗马字',
     id: 'kana-to-romaji',
-    name: '输入罗马字',
+    name: '看假名，输入罗马字',
   },
   {
     description: '看罗马字，输入对应的假名',
     id: 'romaji-to-kana',
-    name: '输入假名',
+    name: '看罗马字，输入假名',
+  },
+  {
+    description: '看罗马字，照着输入罗马字',
+    id: 'romaji-to-romaji',
+    name: '看罗马字，输入罗马字',
+  },
+  {
+    description: '看假名，照着输入假名',
+    id: 'kana-to-kana',
+    name: '看假名，输入假名',
   },
 ] as const
 
@@ -48,22 +58,46 @@ export const getTypingLibrary = (libraryId: TypingLibraryId) => {
   return library ?? kanaBasicLibrary
 }
 
+const getTypingInputHint = (item: TypingPracticeItem) => {
+  return item.inputHints?.join(' / ') ?? item.typingRomaji ?? item.romaji
+}
+
 const typingPracticePromptGetters: Record<
   TypingPracticeModeId,
   (item: TypingPracticeItem) => {
     answer: string
+    inputHint: string
     prompt: string
+    requiresManualSubmit: boolean
     speechText: string
   }
 > = {
   'kana-to-romaji': item => ({
     answer: item.romaji,
+    inputHint: item.inputHints?.join(' / ') ?? item.romaji,
     prompt: item.kana,
+    requiresManualSubmit: false,
     speechText: item.speechText ?? item.kana,
   }),
   'romaji-to-kana': item => ({
     answer: item.kana,
+    inputHint: getTypingInputHint(item),
     prompt: item.romaji,
+    requiresManualSubmit: true,
+    speechText: item.speechText ?? item.kana,
+  }),
+  'romaji-to-romaji': item => ({
+    answer: item.romaji,
+    inputHint: item.inputHints?.join(' / ') ?? item.romaji,
+    prompt: item.romaji,
+    requiresManualSubmit: false,
+    speechText: item.speechText ?? item.kana,
+  }),
+  'kana-to-kana': item => ({
+    answer: item.kana,
+    inputHint: getTypingInputHint(item),
+    prompt: item.kana,
+    requiresManualSubmit: true,
     speechText: item.speechText ?? item.kana,
   }),
 }
