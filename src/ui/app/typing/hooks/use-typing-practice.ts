@@ -1,6 +1,6 @@
-import type { TypingLibrary } from './typing-data'
+import type { TypingLibrary } from '../typing-data'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useTypingStore } from './typing-store'
+import { useTypingStore } from '../stores/typing-store'
 
 export function useTypingPractice(typingLibrary: TypingLibrary) {
   const [kanaState, setKanaState] = useState({

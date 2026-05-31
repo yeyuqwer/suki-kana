@@ -1,12 +1,12 @@
 'use client'
 
 import type { FC } from 'react'
+import { useTypingLibraryQuery } from './hooks/use-typing-library-query'
+import { useTypingPractice } from './hooks/use-typing-practice'
 import { typingLibraries } from './typing-data'
 import { TypingKeyboard } from './typing-keyboard'
 import { TypingLibraryMenu } from './typing-library-menu'
 import { TypingStage } from './typing-stage'
-import { useTypingLibraryQuery } from './use-typing-library-query'
-import { useTypingPractice } from './use-typing-practice'
 
 export const TypingPage: FC = () => {
   const { currentLibrary, libraryId, setLibraryId } = useTypingLibraryQuery()
@@ -27,8 +27,8 @@ export const TypingPage: FC = () => {
   } = useTypingPractice(currentLibrary)
 
   return (
-    <main className="min-h-[calc(100svh-4rem)] w-full bg-[#f5f1ea] text-[#202321] dark:bg-[#0f1315] dark:text-[#eee7da]">
-      <div className="mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-7xl flex-col px-4 pt-2 pb-5">
+    <main className="min-h-[calc(100svh-4rem)] w-full overflow-y-auto bg-[#f5f1ea] text-[#202321] dark:bg-[#0f1315] dark:text-[#eee7da]">
+      <div className="mx-auto -mt-2 flex min-h-[calc(100svh-4rem)] w-full max-w-7xl flex-col px-4 pt-2 pb-5">
         <div className="flex justify-end pt-3">
           <TypingLibraryMenu
             libraries={typingLibraries}

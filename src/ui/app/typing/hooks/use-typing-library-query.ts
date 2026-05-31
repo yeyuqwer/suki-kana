@@ -4,7 +4,7 @@ import {
   getTypingLibrary,
   type TypingLibraryId,
   typingLibraryIds,
-} from './typing-data'
+} from '../typing-data'
 
 const libraryParser = parseAsStringLiteral(typingLibraryIds)
   .withDefault(defaultTypingLibraryId)
