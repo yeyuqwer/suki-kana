@@ -11,6 +11,7 @@ export const TypingStage: FC<{
   isAnswerShown: boolean
   isInputWrong: boolean
   japaneseSpeechVoices: SpeechSynthesisVoice[]
+  onInputFocusChange: (isFocused: boolean) => void
   onNextKana: () => void
   onPreviousKana: () => void
   onSelectSpeechVoice: (voiceURI: string) => void
@@ -24,6 +25,7 @@ export const TypingStage: FC<{
   isAnswerShown,
   isInputWrong,
   japaneseSpeechVoices,
+  onInputFocusChange,
   onNextKana,
   onPreviousKana,
   onSelectSpeechVoice,
@@ -72,11 +74,16 @@ export const TypingStage: FC<{
 
       <div className="flex w-full max-w-md flex-col items-center gap-3">
         <div
+          data-typing-input
+          role="textbox"
+          tabIndex={0}
           className={cn(
-            'h-14 w-full border-[#315463] border-b-2 px-3 text-center font-medium text-5xl text-[#315463] tracking-normal transition-colors dark:border-[#86a8a1] dark:text-[#ded3c1]',
+            'h-14 w-full border-[#315463] border-b-2 px-3 text-center font-medium text-5xl text-[#315463] tracking-normal outline-none transition-colors focus:border-[#bd3f33] dark:border-[#86a8a1] dark:text-[#ded3c1] dark:focus:border-[#f07862]',
             isInputWrong &&
               'typing-input-shake border-[#bd3f33] text-[#bd3f33] dark:border-[#f07862] dark:text-[#f07862]',
           )}
+          onBlur={() => onInputFocusChange(false)}
+          onFocus={() => onInputFocusChange(true)}
         >
           {typedValue}
         </div>

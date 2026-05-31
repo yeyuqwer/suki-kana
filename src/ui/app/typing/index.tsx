@@ -1,6 +1,8 @@
 'use client'
 
 import type { FC } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { cn } from '@/lib/utils/shadcn'
 import { useTypingLibraryQuery } from './hooks/use-typing-library-query'
 import { useTypingPractice } from './hooks/use-typing-practice'
 import { typingLibraries } from './typing-data'
@@ -9,7 +11,14 @@ import { TypingLibraryMenu } from './typing-library-menu'
 import { TypingStage } from './typing-stage'
 
 export const TypingPage: FC = () => {
+  const [isInputFocused, setIsInputFocused] = useState(false)
   const { currentLibrary, libraryId, setLibraryId } = useTypingLibraryQuery()
+  const handlePracticeInput = useCallback(() => {
+    const typingInput = document.querySelector<HTMLElement>('[data-typing-input]')
+
+    setIsInputFocused(true)
+    typingInput?.focus()
+  }, [])
   const {
     activeKey,
     currentKana,
@@ -24,12 +33,31 @@ export const TypingPage: FC = () => {
     selectedVoiceName,
     selectedVoiceURI,
     typedValue,
-  } = useTypingPractice(currentLibrary)
+  } = useTypingPractice(currentLibrary, handlePracticeInput)
+  const isImmersiveMode = isInputFocused || typedValue.length > 0
+
+  useEffect(() => {
+    const header = document.querySelector('[data-app-header]')
+
+    if (header) {
+      header.setAttribute('data-typing-immersive', String(isImmersiveMode))
+    }
+
+    return () => {
+      header?.removeAttribute('data-typing-immersive')
+    }
+  }, [isImmersiveMode])
 
   return (
     <main className="min-h-[calc(100svh-4rem)] w-full overflow-y-auto bg-[#f5f1ea] text-[#202321] dark:bg-[#0f1315] dark:text-[#eee7da]">
       <div className="mx-auto -mt-2 flex min-h-[calc(100svh-4rem)] w-full max-w-7xl flex-col px-4 pt-2 pb-5">
-        <div className="flex justify-end pt-3">
+        <div
+          className={cn(
+            'flex justify-end pt-3 transition-all duration-300',
+            isImmersiveMode &&
+              'opacity-30 blur-[2px] focus-within:opacity-100 focus-within:blur-none hover:opacity-100 hover:blur-none active:opacity-100 active:blur-none',
+          )}
+        >
           <TypingLibraryMenu
             libraries={typingLibraries}
             onSelectLibrary={setLibraryId}
@@ -43,6 +71,7 @@ export const TypingPage: FC = () => {
           isAnswerShown={isAnswerShown}
           isInputWrong={isInputWrong}
           japaneseSpeechVoices={japaneseSpeechVoices}
+          onInputFocusChange={setIsInputFocused}
           onNextKana={handleNextKana}
           onPreviousKana={handlePreviousKana}
           onSelectSpeechVoice={handleSelectSpeechVoice}

@@ -2,7 +2,7 @@ import type { TypingLibrary } from '../typing-data'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTypingStore } from '../stores/typing-store'
 
-export function useTypingPractice(typingLibrary: TypingLibrary) {
+export function useTypingPractice(typingLibrary: TypingLibrary, onPracticeInput?: () => void) {
   const [kanaState, setKanaState] = useState({
     index: 0,
     libraryId: typingLibrary.id,
@@ -289,6 +289,7 @@ export function useTypingPractice(typingLibrary: TypingLibrary) {
         window.speechSynthesis.resume()
         const nextTypedValue = isInputWrong ? key : `${typedValue}${key}`
 
+        onPracticeInput?.()
         setActiveKey(key)
         setTypedValue(nextTypedValue)
         setSpacePressCount(0)
@@ -328,6 +329,7 @@ export function useTypingPractice(typingLibrary: TypingLibrary) {
     handleNextKana,
     handlePreviousKana,
     isInputWrong,
+    onPracticeInput,
     resetAnswerState,
     spacePressCount,
     typedValue,
