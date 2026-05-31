@@ -1,15 +1,15 @@
 import type { FC } from 'react'
 import type { TypingLibrary, TypingLibraryId } from './typing-data'
 import { BookOpen, Check, ChevronDown } from 'lucide-react'
-import { useState } from 'react'
 import { cn } from '@/lib/utils/shadcn'
 
 export const TypingLibraryMenu: FC<{
+  isOpen: boolean
   libraries: readonly TypingLibrary[]
   onSelectLibrary: (libraryId: TypingLibraryId) => void
+  onOpenChange: (isOpen: boolean) => void
   selectedLibraryId: TypingLibraryId
-}> = ({ libraries, onSelectLibrary, selectedLibraryId }) => {
-  const [isOpen, setIsOpen] = useState(false)
+}> = ({ isOpen, libraries, onOpenChange, onSelectLibrary, selectedLibraryId }) => {
   const selectedLibrary = libraries.find(library => library.id === selectedLibraryId)
 
   return (
@@ -22,14 +22,14 @@ export const TypingLibraryMenu: FC<{
           !(nextFocusedElement instanceof Node) ||
           !event.currentTarget.contains(nextFocusedElement)
         ) {
-          setIsOpen(false)
+          onOpenChange(false)
         }
       }}
     >
       <button
         type="button"
         className="flex w-full items-center justify-between gap-3 rounded-md border border-[#d6c7b3] bg-[#fbf8f1] px-3 py-2 text-left text-[#315463] shadow-sm outline-none transition-colors hover:bg-[#ece3d3] dark:border-[#2f4146] dark:bg-[#161d20] dark:text-[#ded3c1] dark:hover:bg-[#202b2f]"
-        onClick={() => setIsOpen(value => !value)}
+        onClick={() => onOpenChange(!isOpen)}
       >
         <span className="flex min-w-0 items-center gap-2">
           <BookOpen className="size-4 shrink-0 text-[#bd3f33] dark:text-[#f07862]" />
@@ -60,7 +60,7 @@ export const TypingLibraryMenu: FC<{
               )}
               onClick={() => {
                 onSelectLibrary(library.id)
-                setIsOpen(false)
+                onOpenChange(false)
               }}
             >
               <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center">

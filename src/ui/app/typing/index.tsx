@@ -6,12 +6,14 @@ import { cn } from '@/lib/utils/shadcn'
 import { useTypingLibraryQuery } from './hooks/use-typing-library-query'
 import { useTypingPractice } from './hooks/use-typing-practice'
 import { typingLibraries } from './typing-data'
+import { TypingFinishModal } from './typing-finish-modal'
 import { TypingKeyboard } from './typing-keyboard'
 import { TypingLibraryMenu } from './typing-library-menu'
 import { TypingStage } from './typing-stage'
 
 export const TypingPage: FC = () => {
   const [isInputFocused, setIsInputFocused] = useState(false)
+  const [isLibraryMenuOpen, setIsLibraryMenuOpen] = useState(false)
   const { currentLibrary, itemIndex, libraryId, setItemIndex, setLibraryId } =
     useTypingLibraryQuery()
   const handlePracticeInput = useCallback(() => {
@@ -26,11 +28,15 @@ export const TypingPage: FC = () => {
     currentRomaji,
     handleNextKana,
     handlePreviousKana,
+    handleChooseLibrary,
     handleSelectSpeechVoice,
     handleSpeakKana,
+    finishSummary,
     isAnswerShown,
     isInputWrong,
     japaneseSpeechVoices,
+    restartAll,
+    restartWrong,
     selectedVoiceName,
     selectedVoiceURI,
     typedValue,
@@ -60,7 +66,9 @@ export const TypingPage: FC = () => {
           )}
         >
           <TypingLibraryMenu
+            isOpen={isLibraryMenuOpen}
             libraries={typingLibraries}
+            onOpenChange={setIsLibraryMenuOpen}
             onSelectLibrary={setLibraryId}
             selectedLibraryId={libraryId}
           />
@@ -84,6 +92,19 @@ export const TypingPage: FC = () => {
           activeKey={activeKey}
           currentRomaji={currentRomaji}
           isAnswerShown={isAnswerShown}
+        />
+        <TypingFinishModal
+          accuracy={finishSummary?.accuracy ?? 0}
+          elapsedSeconds={finishSummary?.elapsedSeconds ?? 0}
+          isOpen={finishSummary !== null}
+          onChooseLibrary={() => {
+            handleChooseLibrary()
+            setIsInputFocused(false)
+            setIsLibraryMenuOpen(true)
+          }}
+          onRestartAll={restartAll}
+          onRestartWrong={restartWrong}
+          wrongItems={finishSummary?.wrongItems ?? []}
         />
       </div>
     </main>

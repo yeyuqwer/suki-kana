@@ -4,6 +4,7 @@ export function useTypingKeyboardEvents({
   currentRomaji,
   handleNextKana,
   handlePreviousKana,
+  isDisabled,
   isInputWrong,
   onCorrectInput,
   onPracticeInput,
@@ -18,6 +19,7 @@ export function useTypingKeyboardEvents({
   currentRomaji: string
   handleNextKana: () => void
   handlePreviousKana: () => void
+  isDisabled: boolean
   isInputWrong: boolean
   onCorrectInput: () => void
   onPracticeInput?: () => void
@@ -31,6 +33,10 @@ export function useTypingKeyboardEvents({
 }) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (isDisabled) {
+        return
+      }
+
       if (event.key === ' ') {
         event.preventDefault()
         window.speechSynthesis.resume()
@@ -109,6 +115,7 @@ export function useTypingKeyboardEvents({
     currentRomaji,
     handleNextKana,
     handlePreviousKana,
+    isDisabled,
     isInputWrong,
     onCorrectInput,
     onPracticeInput,

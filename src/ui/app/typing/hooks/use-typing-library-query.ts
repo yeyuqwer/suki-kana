@@ -1,5 +1,5 @@
 import { parseAsInteger, parseAsStringLiteral, useQueryState } from 'nuqs'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import {
   defaultTypingLibraryId,
   getTypingLibrary,
@@ -21,7 +21,7 @@ const itemParser = parseAsInteger.withDefault(0).withOptions({
 })
 
 export function useTypingLibraryQuery() {
-  const [libraryId, setLibraryId] = useQueryState('library', libraryParser)
+  const [libraryId, setQueryLibraryId] = useQueryState('library', libraryParser)
   const [itemIndex, setQueryItemIndex] = useQueryState('item', itemParser)
   const currentLibrary = getTypingLibrary(libraryId)
   const currentItemIndex = itemIndex >= 0 && itemIndex < currentLibrary.items.length ? itemIndex : 0
@@ -32,16 +32,25 @@ export function useTypingLibraryQuery() {
     }
   }, [currentItemIndex, itemIndex, setQueryItemIndex])
 
+  const setLibraryId = useCallback(
+    (nextLibraryId: TypingLibraryId) => {
+      void setQueryLibraryId(nextLibraryId)
+      void setQueryItemIndex(0)
+    },
+    [setQueryItemIndex, setQueryLibraryId],
+  )
+  const setItemIndex = useCallback(
+    (nextItemIndex: number) => {
+      void setQueryItemIndex(nextItemIndex)
+    },
+    [setQueryItemIndex],
+  )
+
   return {
     currentLibrary,
     itemIndex: currentItemIndex,
     libraryId,
-    setLibraryId: (nextLibraryId: TypingLibraryId) => {
-      void setLibraryId(nextLibraryId)
-      void setQueryItemIndex(0)
-    },
-    setItemIndex: (nextItemIndex: number) => {
-      void setQueryItemIndex(nextItemIndex)
-    },
+    setItemIndex,
+    setLibraryId,
   }
 }
