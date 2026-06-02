@@ -56,15 +56,12 @@ importers:
       tailwindcss:
         specifier: ^4.3.0
         version: 4.3.0
-      wanakana:
-        specifier: ^5.3.1
-        version: 5.3.1
       zod:
         specifier: ^4.4.3
         version: 4.4.3
       zustand:
-        specifier: ^5.0.13
-        version: 5.0.13(@types/react@19.2.14)(react@19.2.6)
+        specifier: ^5.0.14
+        version: 5.0.14(@types/react@19.2.14)(react@19.2.6)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.4.16
@@ -1173,10 +1170,6 @@ packages:
   undici-types@7.21.0:
     resolution: {integrity: sha512-w9IMgQrz4O0YN1LtB7K5P63vhlIOvC7opSmouCJ+ZywlPAlO9gIkJ+otk6LvGpAs2wg4econaCz3TvQ9xPoyuQ==}
 
-  wanakana@5.3.1:
-    resolution: {integrity: sha512-OSDqupzTlzl2LGyqTdhcXcl6ezMiFhcUwLBP8YKaBIbMYW1wAwDvupw2T9G9oVaKT9RmaSpyTXjxddFPUcFFIw==}
-    engines: {node: '>=12'}
-
   wrap-ansi@10.0.0:
     resolution: {integrity: sha512-SGcvg80f0wUy2/fXES19feHMz8E0JoXv2uNgHOu4Dgi2OrCy1lqwFYEJz1BLbDI0exjPMe/ZdzZ/YpGECBG/aQ==}
     engines: {node: '>=20'}
@@ -1205,8 +1198,8 @@ packages:
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
-  zustand@5.0.13:
-    resolution: {integrity: sha512-efI2tVaVQPqtOh114loML/Z80Y4NP3yc+Ff0fYiZJPauNeWZeIp/bRFD7I9bfmCOYBh/PHxlglQ9+wvlwnPikQ==}
+  zustand@5.0.14:
+    resolution: {integrity: sha512-/8tAspM5LMPr28b3fwLYrtdj77ECpfZviaP75CMTnwO8ISyaE4GDIG/9rDDYq/cH9D2Xw2A2RXglLInmVBQB/g==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=18.0.0'
@@ -2140,8 +2133,6 @@ snapshots:
 
   undici-types@7.21.0: {}
 
-  wanakana@5.3.1: {}
-
   wrap-ansi@10.0.0:
     dependencies:
       ansi-styles: 6.2.3
@@ -2172,7 +2163,7 @@ snapshots:
 
   zod@4.4.3: {}
 
-  zustand@5.0.13(@types/react@19.2.14)(react@19.2.6):
+  zustand@5.0.14(@types/react@19.2.14)(react@19.2.6):
     optionalDependencies:
       '@types/react': 19.2.14
       react: 19.2.6
